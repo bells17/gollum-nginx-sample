@@ -1,0 +1,21 @@
+version: '2'
+services:
+  nginx:
+    image: nginx:1.13.7
+    volumes:
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - 8081:80
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+      - PROXY_HOST=gollum
+    command: bash -c "envsubst '$$NGINX_PORT $$NGINX_HOST $$PROXY_HOST' < /etc/nginx/conf.d/proxy.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    depends_on:
+      - gollum
+  gollum:
+    build:
+      context: .
+      dockerfile: docker/gollum/Dockerfile
+    ports:
+      - 8080:8080
